@@ -24,6 +24,8 @@ private slots:
     void saveState();
     void replayEvent();
 
+    void clear();
+
 private:
     void startRecorting();
     void stopRecorting();

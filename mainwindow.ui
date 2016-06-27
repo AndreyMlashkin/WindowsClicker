@@ -54,6 +54,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="clear">
+      <property name="text">
+       <string>clear</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QListView" name="listView"/>
     </item>
    </layout>

@@ -13,13 +13,14 @@ int keyPressed(int key)
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_frequenz(500),
+    m_frequenz(100),
     m_replayingEventCount(0)
 {
     ui->setupUi(this);
 
     connect(ui->record, &QPushButton::toggled, this, &MainWindow::recordClicked);
     connect(ui->replay, &QPushButton::toggled, this, &MainWindow::replayClicked);
+    connect(ui->clear,  &QPushButton::clicked, this, &MainWindow::clear);
     ui->listView->setModel(&m_model);
 }
 
@@ -92,7 +93,8 @@ void MainWindow::setPos(const QPoint &_point) const
 void MainWindow::click() const
 {
     qDebug() << Q_FUNC_INFO;
-    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+    mouse_event(MOUSEEVENTF_LEFTUP,   0, 0, 0, 0);
 }
 
 void MainWindow::saveState()
@@ -135,4 +137,10 @@ void MainWindow::replayEvent()
 
     auto index = m_model.index(m_replayingEventCount, 0);
     ui->listView->setCurrentIndex(index);
+}
+
+void MainWindow::clear()
+{
+    m_events.clear();
+    m_model.clear();
 }
