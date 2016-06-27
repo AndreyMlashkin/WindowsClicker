@@ -21,8 +21,8 @@ private slots:
     void recordClicked(bool _toggle);
     void replayClicked(bool _toggle);
 
-    void click(const QPoint& _point) const;
     void saveState();
+    void replayEvent();
 
 private:
     void startRecorting();
@@ -30,6 +30,10 @@ private:
 
     void startReplay();
     void stopReplay();
+
+    void setPos(const QPoint& _point) const;
+    void click() const;
+
 
 struct Event
 {
@@ -39,10 +43,14 @@ struct Event
 
 private:
     Ui::MainWindow *ui;
-    QTimer m_timer;
+    int m_frequenz;
+
+    QTimer m_recordingTimer;
+    QTimer m_replayTimer;
 
     QStandardItemModel m_model;
     QVector<Event> m_events;
+    int m_replayingEventCount;
 };
 
 #endif // MAINWINDOW_H

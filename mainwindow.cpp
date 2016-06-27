@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -11,7 +12,9 @@ int keyPressed(int key)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_frequenz(500),
+    m_replayingEventCount(0)
 {
     ui->setupUi(this);
 
@@ -43,30 +46,52 @@ void MainWindow::replayClicked(bool _toggle)
 
 void MainWindow::startRecorting()
 {
-    m_timer.setInterval(500);
-    m_timer.start();
-    connect(&m_timer, &QTimer::timeout, this, &MainWindow::saveState);
+    m_recordingTimer.setInterval(m_frequenz);
+    m_recordingTimer.start();
+    connect(&m_recordingTimer, &QTimer::timeout, this, &MainWindow::saveState);
 }
 
 void MainWindow::stopRecorting()
 {
-    m_timer.stop();
+    m_recordingTimer.stop();
 }
 
 void MainWindow::startReplay()
 {
+    stopRecorting();
 
+//    m_replayTimer.setInterval(500);
+//    m_replayTimer.start();
+//    connect(&m_replayTimer, &QTimer::timeout, this, &MainWindow::replayEvent);
+
+    for(int i = 0; i < m_events.count(); ++i)
+    {
+        Sleep(m_frequenz);
+        Event event = m_events[i];
+        setPos(event.pos);
+        Sleep(1);
+        if(event.click)
+            click();
+
+        auto index = m_model.index(i, 0);
+        ui->listView->setCurrentIndex(index);
+    }
 }
 
 void MainWindow::stopReplay()
 {
-
+    m_replayTimer.stop();
 }
 
-void MainWindow::click(const QPoint &_point) const
+void MainWindow::setPos(const QPoint &_point) const
 {
+    qDebug() << Q_FUNC_INFO << " " << _point;
     SetCursorPos(_point.x(), _point.y());
-    Sleep(1);
+}
+
+void MainWindow::click() const
+{
+    qDebug() << Q_FUNC_INFO;
     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
 }
 
@@ -96,4 +121,18 @@ void MainWindow::saveState()
                                             );
     m_model.appendRow(item);
     ui->listView->scrollToBottom();
+}
+
+void MainWindow::replayEvent()
+{
+    m_replayingEventCount = (m_replayingEventCount++) % m_events.count();
+    Event event = m_events[m_replayingEventCount];
+
+    setPos(event.pos);
+    Sleep(1);
+    if(event.click)
+        click();
+
+    auto index = m_model.index(m_replayingEventCount, 0);
+    ui->listView->setCurrentIndex(index);
 }
